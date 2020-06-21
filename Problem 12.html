@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>URL</title>
+<script type="text/javascript">
+
+if (window.File && window.FileReader && window.FileList && window.Blob) {
+      function showFile() {
+         var preview = document.getElementById('show-text');
+         var file = document.querySelector('input[type=file]').files[0];
+         var reader = new FileReader()
+
+         var textFile = /text.*/;
+
+         if (file.type.match(textFile)) {
+            reader.onload = function (event) {
+               preview.innerHTML = JSON.stringify(validate(event.target.result,null,10))
+            }
+         } else {
+            preview.innerHTML = "<span class='error'>It doesn't seem to be a text file!</span>";
+         }
+         reader.readAsText(file);
+      }
+   } else {
+      alert("Your browser is too old to support HTML5 File API");
+   }
+
+
+    function validate(result) {
+        var text = result.split(" ")
+        var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+        var arr = text.filter((value) => pattern.test(value))
+        let occur = new Set(arr)
+        let index_array = []
+        occur.forEach(element => {
+           let temp ={}
+           temp["name"] = element
+           temp["index"] = text.indexOf(element)
+           index_array.push(temp)
+        })
+        let obj = []
+        arr.forEach(element => {
+           if(obj.some(item => item.Domain === element)){
+              obj.forEach(variable => {
+                 if(variable.Domain === element){
+                    variable.Occurences += 1
+                 }
+              })
+           }else{
+               let initial_obj = {}
+               initial_obj["Domain"] = element
+               initial_obj["Occurences"] = 1
+               index_array.forEach(temp => {
+                  if(temp.name === element){
+                     initial_obj["First Occurence at index"] = temp.index
+                  }
+               })
+               obj.push(initial_obj)
+           }   
+        })           
+        return obj    
+    }
+</script>
+ 
+</head>
+<body>
+URL :
+<input type="file" onchange="showFile()">
+<br />
+<br />
+ URL's found in text file : 
+<br />
+<br />
+<div id="show-text"></div>
+</body>
+</html>
